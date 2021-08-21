@@ -35,7 +35,7 @@ function isValidConditionFormat(string $conditionStr): bool
     return $idxCondStr == mb_strlen($conditionStr);
 }
 
-$dbh = new PDO('mysql:dbname=isucondition;host=127.0.0.1', 'isucon', 'isucon');
+$dbh = new PDO('mysql:dbname=isucondition;host=192.168.0.12', 'isucon', 'isucon');
 
 /*
 $dropProbability = 0.9;
