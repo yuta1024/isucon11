@@ -488,7 +488,11 @@ final class Handler
      */
     private function getUserIdFromSession(): array
     {
-        $jiaUserId = $this->session->get('jia_user_id');
+        if (array_key_exists('jia_user_id', $_COOKIE)) {
+            $jiaUserId = $_COOKIE['jia_user_id'];
+        } else {
+            $jiaUserId = '';
+        }
         if (empty($jiaUserId)) {
             return ['', StatusCodeInterface::STATUS_UNAUTHORIZED, 'no session'];
         }
@@ -633,7 +637,7 @@ final class Handler
             return $response->withStatus(StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR);
         }
 
-        $this->session->set('jia_user_id', $jiaUserId);
+        setcookie('jia_user_id', $jiaUserId);
 
         return $response;
     }
@@ -659,7 +663,7 @@ final class Handler
             return $newResponse;
         }
 
-        $this->session->destroy();
+        setcookie('jia_user_id', '');
 
         return $response;
     }
