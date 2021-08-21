@@ -23,7 +23,7 @@ return function (ContainerBuilder $containerBuilder) {
                 ],
                 'database' => [
 //                     'host' => getenv('MYSQL_HOST') ?: '127.0.0.1',
-                    'host' => 192.168.0.12',
+                    'host' => '192.168.0.12',
 //                     'port' => getenv('MYSQL_PORT') ?: '3306',
                     'port' => '3306',
                     'database' => getenv('MYSQL_DBNAME') ?: 'isucondition',
