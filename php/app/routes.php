@@ -137,9 +137,9 @@ final class IsuCondition
             $dbRow['jia_isu_uuid'] ?? null,
             isset($dbRow['timestamp']) ? new DateTimeImmutable($dbRow['timestamp']) : null,
             isset($dbRow['is_sitting']) ? (bool)$dbRow['is_sitting'] : null,
-            $dbRow['is_dirty'] ?? null,
-            $dbRow['is_overweight'] ?? null,
-            $dbRow['is_broken'] ?? null,
+            (int)$dbRow['is_dirty'] ?? null,
+            (int)$dbRow['is_overweight'] ?? null,
+            (int)$dbRow['is_broken'] ?? null,
             $dbRow['message'] ?? null,
             isset($dbRow['created_at']) ? new DateTimeImmutable($dbRow['created_at']) : null,
         );
@@ -746,7 +746,7 @@ final class Handler
             if (count($rows) != 0) {
                 $lastCondition = IsuCondition::fromDbRow($rows[0]);
                 try {
-                    $conditionLevel = $this->calculateConditionLevel($lastCondition->is_dirty + $lastCondition->is_overweight + $lastCondition->is_broken);
+                    $conditionLevel = $this->calculateConditionLevel((int)$lastCondition->isDirty + (int)$lastCondition->isOverweight + (int)$lastCondition->isBroken);
                 } catch (UnexpectedValueException $e) {
                     $this->dbh->rollBack();
                     $this->logger->error($e->getMessage());
@@ -759,7 +759,7 @@ final class Handler
                     isuName: $isu->name,
                     timestamp: $lastCondition->timestamp->getTimestamp(),
                     isSitting: $lastCondition->isSitting,
-                    condition: $lastCondition->condition,
+                    condition: 'is_dirty=' . ($lastCondition->isDirty === 1 ? 'true' : 'false') . ',is_overweight=' . ($lastCondition->isOverweight === 1 ? 'true' : 'false') . ',is_broken=' . ($lastCondition->isBroken === 1 ? 'true' : 'false'),
                     conditionLevel: $conditionLevel,
                     message: $lastCondition->message,
                 );
@@ -1226,7 +1226,7 @@ final class Handler
         $rawScore = 0;
 
         foreach ($isuConditions as $condition) {
-            $badConditionsCount = $condition->is_dirty + $condition->is_overweight + $condition->is_broken;
+            $badConditionsCount = $condition->isDirty + $condition->isOverweight + $condition->isBroken;
 
             //if (!$this->isValidConditionFormat($condition->condition)) {
             //    return [[], 'invalid condition format'];
@@ -1428,7 +1428,7 @@ final class Handler
         $conditionsResponse = [];
         foreach ($conditions as $c) {
             try {
-                $cLevel = $this->calculateConditionLevel($c->is_dirty + $c->is_overweight + $c->is_broken);
+                $cLevel = $this->calculateConditionLevel((int)$c->isDirty + (int)$c->isOverweight + (int)$c->isBroken);
             } catch (UnexpectedValueException) {
                 continue;
             }
@@ -1537,7 +1537,7 @@ final class Handler
                 if (count($conditions) > 0) {
                     $isuLastCondition = $conditions[0];
                     try {
-                        $conditionLevel = $this->calculateConditionLevel($isuLastCondition->is_dirty + $isuLastCondition->is_overweight + $isuLastCondition->is_broken);
+                        $conditionLevel = $this->calculateConditionLevel((int)$isuLastCondition->isDirty + (int)$isuLastCondition->isOverweight + (int)$isuLastCondition->isBroken);
                     } catch (UnexpectedValueException $e) {
                         $this->logger->error($e->getMessage());
 
@@ -1717,32 +1717,32 @@ final class Handler
         return $idxCondStr == mb_strlen($conditionStr);
     }
 
-//     public function getIndex(Request $request, Response $response): Response
-//     {
-//         $response->getBody()->write(file_get_contents(self::FRONTEND_CONTENTS_PATH . '/index.html'));
-//
-//         return $response;
-//     }
-//
-//     public function getAssets(Request $request, Response $response, array $args): Response
-//     {
-//         $filePath = self::FRONTEND_CONTENTS_PATH . '/assets/' . $args['filename'];
-//
-//         if (!file_exists($filePath)) {
-//             return $response->withStatus(404, 'File Not Found');
-//         }
-//
-//         $mimeType = match (pathinfo($filePath, PATHINFO_EXTENSION)) {
-//             'js' => 'text/javascript',
-//             'css' => 'text/css',
-//             'svg' => 'image/svg+xml',
-//             default => 'text/html',
-//         };
-//
-//         $response->getBody()->write(file_get_contents($filePath));
-//
-//         return $response->withHeader('Content-Type', $mimeType . '; charset=UTF-8');
-//     }
+    public function getIndex(Request $request, Response $response): Response
+    {
+        $response->getBody()->write(file_get_contents(self::FRONTEND_CONTENTS_PATH . '/index.html'));
+
+        return $response;
+    }
+
+    public function getAssets(Request $request, Response $response, array $args): Response
+    {
+        $filePath = self::FRONTEND_CONTENTS_PATH . '/assets/' . $args['filename'];
+
+        if (!file_exists($filePath)) {
+            return $response->withStatus(404, 'File Not Found');
+        }
+
+        $mimeType = match (pathinfo($filePath, PATHINFO_EXTENSION)) {
+            'js' => 'text/javascript',
+            'css' => 'text/css',
+            'svg' => 'image/svg+xml',
+            default => 'text/html',
+        };
+
+        $response->getBody()->write(file_get_contents($filePath));
+
+        return $response->withHeader('Content-Type', $mimeType . '; charset=UTF-8');
+    }
 
     /**
      * @throws UnexpectedValueException
