@@ -1597,14 +1597,16 @@ final class Handler
      */
     public function postIsuCondition(Request $request, Response $response, array $args): Response
     {
+	/*
         // TODO: 一定割合リクエストを落としてしのぐようにしたが、本来は全量さばけるようにすべき
-        $dropProbability = 0.9;
+        $dropProbability = 0.0;
 
         if ((rand() / getrandmax()) <= $dropProbability) {
             $this->logger->warning('drop post isu condition request');
 
             return $response->withStatus(StatusCodeInterface::STATUS_ACCEPTED);
         }
+	*/
 
         $jiaIsuUuid = $args['jia_isu_uuid'];
         if ($jiaIsuUuid === '') {
@@ -1734,25 +1736,26 @@ final class Handler
         return $response;
     }
 
-    public function getAssets(Request $request, Response $response, array $args): Response
-    {
-        $filePath = self::FRONTEND_CONTENTS_PATH . '/assets/' . $args['filename'];
-
-        if (!file_exists($filePath)) {
-            return $response->withStatus(404, 'File Not Found');
-        }
-
-        $mimeType = match (pathinfo($filePath, PATHINFO_EXTENSION)) {
-            'js' => 'text/javascript',
-            'css' => 'text/css',
-            'svg' => 'image/svg+xml',
-            default => 'text/html',
-        };
-
-        $response->getBody()->write(file_get_contents($filePath));
-
-        return $response->withHeader('Content-Type', $mimeType . '; charset=UTF-8');
-    }
+    
+//     public function getAssets(Request $request, Response $response, array $args): Response
+//     {
+//         $filePath = self::FRONTEND_CONTENTS_PATH . '/assets/' . $args['filename'];
+//
+//         if (!file_exists($filePath)) {
+//             return $response->withStatus(404, 'File Not Found');
+//         }
+//
+//         $mimeType = match (pathinfo($filePath, PATHINFO_EXTENSION)) {
+//             'js' => 'text/javascript',
+//             'css' => 'text/css',
+//             'svg' => 'image/svg+xml',
+//             default => 'text/html',
+//         };
+//
+//         $response->getBody()->write(file_get_contents($filePath));
+//
+//         return $response->withHeader('Content-Type', $mimeType . '; charset=UTF-8');
+//     }
 
     /**
      * @throws UnexpectedValueException
