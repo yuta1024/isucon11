@@ -19,7 +19,7 @@ return function (ContainerBuilder $containerBuilder) {
                 'logger' => [
                     'name' => 'slim-app',
                     'path' => 'php://stdout',
-                    'level' => Logger::DEBUG,
+                    'level' => Logger::EMERGENCY,
                 ],
                 'database' => [
 //                     'host' => getenv('MYSQL_HOST') ?: '127.0.0.1',
