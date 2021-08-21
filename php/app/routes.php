@@ -1717,32 +1717,32 @@ final class Handler
         return $idxCondStr == mb_strlen($conditionStr);
     }
 
-    public function getIndex(Request $request, Response $response): Response
-    {
-        $response->getBody()->write(file_get_contents(self::FRONTEND_CONTENTS_PATH . '/index.html'));
-
-        return $response;
-    }
-
-    public function getAssets(Request $request, Response $response, array $args): Response
-    {
-        $filePath = self::FRONTEND_CONTENTS_PATH . '/assets/' . $args['filename'];
-
-        if (!file_exists($filePath)) {
-            return $response->withStatus(404, 'File Not Found');
-        }
-
-        $mimeType = match (pathinfo($filePath, PATHINFO_EXTENSION)) {
-            'js' => 'text/javascript',
-            'css' => 'text/css',
-            'svg' => 'image/svg+xml',
-            default => 'text/html',
-        };
-
-        $response->getBody()->write(file_get_contents($filePath));
-
-        return $response->withHeader('Content-Type', $mimeType . '; charset=UTF-8');
-    }
+//     public function getIndex(Request $request, Response $response): Response
+//     {
+//         $response->getBody()->write(file_get_contents(self::FRONTEND_CONTENTS_PATH . '/index.html'));
+//
+//         return $response;
+//     }
+//
+//     public function getAssets(Request $request, Response $response, array $args): Response
+//     {
+//         $filePath = self::FRONTEND_CONTENTS_PATH . '/assets/' . $args['filename'];
+//
+//         if (!file_exists($filePath)) {
+//             return $response->withStatus(404, 'File Not Found');
+//         }
+//
+//         $mimeType = match (pathinfo($filePath, PATHINFO_EXTENSION)) {
+//             'js' => 'text/javascript',
+//             'css' => 'text/css',
+//             'svg' => 'image/svg+xml',
+//             default => 'text/html',
+//         };
+//
+//         $response->getBody()->write(file_get_contents($filePath));
+//
+//         return $response->withHeader('Content-Type', $mimeType . '; charset=UTF-8');
+//     }
 
     /**
      * @throws UnexpectedValueException
