@@ -488,7 +488,7 @@ final class Handler
      */
     private function getUserIdFromSession(): array
     {
-        if (array_key_exists('jia_user_id', $_COOKIE) {
+        if (array_key_exists('jia_user_id', $_COOKIE)) {
             $jiaUserId = $_COOKIE['jia_user_id'];
         } else {
             $jiaUserId = '';
