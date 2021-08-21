@@ -22,8 +22,10 @@ return function (ContainerBuilder $containerBuilder) {
                     'level' => Logger::DEBUG,
                 ],
                 'database' => [
-                    'host' => getenv('MYSQL_HOST') ?: '127.0.0.1',
-                    'port' => getenv('MYSQL_PORT') ?: '3306',
+//                     'host' => getenv('MYSQL_HOST') ?: '127.0.0.1',
+                    'host' => 192.168.0.12',
+//                     'port' => getenv('MYSQL_PORT') ?: '3306',
+                    'port' => '3306',
                     'database' => getenv('MYSQL_DBNAME') ?: 'isucondition',
                     'user' => getenv('MYSQL_USER') ?: 'isucon',
                     'password' => getenv('MYSQL_PASS') ?: 'isucon',
