@@ -62,9 +62,9 @@ query_cache_size        = 16M
 log_error = /var/log/mysql/error.log
 #
 # Enable the slow query log to see queries with especially long duration
-slow_query_log = 1
+slow_query_log = 0
 slow_query_log_file    = /var/log/mysql/mariadb-slow.log
-long_query_time        = 0.1
+long_query_time        = 0.05
 #log_slow_rate_limit    = 1000
 #log_slow_verbosity     = query_plan
 #log-queries-not-using-indexes
@@ -78,6 +78,7 @@ expire_logs_days        = 10
 #max_binlog_size        = 100M
 #binlog_do_db           = include_database_name
 #binlog_ignore_db       = exclude_database_name
+skip-log-bin
 
 #
 # * Security Features
@@ -111,6 +112,30 @@ collation-server      = utf8mb4_general_ci
 #
 # InnoDB is enabled by default with a 10MB datafile in /var/lib/mysql/.
 # Read the manual for more InnoDB related options. There are many!
+innodb_buffer_pool_size = 2G
+innodb_log_file_size = 256M
+innodb_log_files_in_group = 4
+
+# テーブルがbuffer poolに収まる程度ならO_DIRECTで
+innodb_flush_method = O_DIRECT
+
+# logファイルのflushもディスクflushも毎秒1回(transactionがcommitされてもしない)
+innodb_flush_log_at_trx_commit = 0
+
+# 二重書き込みを停止
+innodb_doublewrite = 0
+
+# チェックサムの計算を省略
+innodb_checksum_algorithm = none
+
+# トランザクション分離レベルをクソ化する
+transaction-isolation = READ-COMMITTED
+
+# TODO: 8.0+
+# deadlock detectionを無効化
+# https://dev.mysql.com/doc/refman/8.0/en/innodb-parameters.html#sysvar_innodb_deadlock_detect
+#innodb_deadlock_detect = on
+innodb_deadlock_detect = off
 
 #
 # * Unix socket authentication plugin is built-in since 10.0.22-6
