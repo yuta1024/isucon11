@@ -1,9 +1,38 @@
+# チーム「ワイハリマ」
+### メンバー
+* [yuta1024](https://github.com/yuta1024)
+* [nhirokinet](https://github.com/nhirokinet)
+* [tyabuki](https://github.com/tyabuki)
+
+### 過去
+* ISUCON7
+    - [nhirokinet/isubata](https://github.com/nhirokinet/isubata)
+* ISUCON8
+    - [yuta1024/isucon8](https://github.com/yuta1024/isucon8)
+    - [yuta1024/isucon8-infra](https://github.com/yuta1024/isucon8-infra)
+* ISUCON9
+    - [yuta1024/isucon9](https://github.com/yuta1024/isucon9)
+* ISUCON10
+    - [tyabuki/isucon10](https://github.com/tyabuki/isucon10)
+* ISUCON11
+    - [yuta1024/isucon11](https://github.com/yuta1024/isucon11)
+
 # isucon11
 ISUCON11 qualifying repository of ワイハリマ 🌴 team
 
+### score
+```
+#36253	26656	FINISHED	2021-08-21 18:41:21.913	a minute - [latest] weight=5
+#35981	24481	FINISHED	2021-08-21 18:39:30.430	a minute - weight=5
+#35518	24231	FINISHED	2021-08-21 18:36:02.677	a minute - weight=6
+#35280	25453	FINISHED	2021-08-21 18:34:22.800	a minute - weight=4
+#35016	29189	FINISHED	2021-08-21 18:32:28.922	a minute - [best] weight=5
+```
+![Screen Shot 2021-08-21 at 18 49 49](https://user-images.githubusercontent.com/7386418/130318130-9f0b41ee-b5c4-49e7-b5c6-fa9cbbce1baf.png)
+
 
 ### db
-```aidl
+```sql
 MariaDB [(none)]> create user 'isucon'@'%' identified by 'isucon';
 Query OK, 0 rows affected (0.000 sec)
 
