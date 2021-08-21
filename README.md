@@ -1,9 +1,27 @@
+# チーム「ワイハリマ」
+### メンバー
+* [yuta1024](https://github.com/yuta1024)
+* [nhirokinet](https://github.com/nhirokinet)
+* [tyabuki](https://github.com/tyabuki)
+
+### 過去
+* ISUCON7
+    - [nhirokinet/isubata](https://github.com/nhirokinet/isubata)
+* ISUCON8
+    - [yuta1024/isucon8](https://github.com/yuta1024/isucon8)
+    - [yuta1024/isucon8-infra](https://github.com/yuta1024/isucon8-infra)
+* ISUCON9
+    - [yuta1024/isucon9](https://github.com/yuta1024/isucon9)
+* ISUCON10
+    - [tyabuki/isucon10](https://github.com/tyabuki/isucon10)
+* ISUCON11
+    - [yuta1024/isucon11](https://github.com/yuta1024/isucon11)
+
 # isucon11
 ISUCON11 qualifying repository of ワイハリマ 🌴 team
 
-
 ### db
-```aidl
+```sql
 MariaDB [(none)]> create user 'isucon'@'%' identified by 'isucon';
 Query OK, 0 rows affected (0.000 sec)
 
