@@ -1232,6 +1232,16 @@ final class Handler
             //    return [[], 'invalid condition format'];
             //}
 
+            if ($condition->isDirty) {
+                $conditionsCount['is_dirty'] += 1;
+            }
+            if ($condition->isBroken) {
+                $conditionsCount['is_broken'] += 1;
+            }
+            if ($condition->isOverweight) {
+                $conditionsCount['is_overweight'] += 1;
+            }
+
             if ($badConditionsCount >= 3) {
                 $rawScore += self::SCORE_CONDITION_LEVEL_CRITICAL;
             } elseif ($badConditionsCount >= 1) {
@@ -1442,7 +1452,7 @@ final class Handler
                 isuName: $isuName,
                 timestamp: $c->timestamp->getTimestamp(),
                 isSitting: $c->isSitting,
-                condition: $c->condition,
+                condition: 'is_dirty=' . ($c->isDirty === 1 ? 'true' : 'false') . ',is_overweight=' . ($c->isOverweight === 1 ? 'true' : 'false') . ',is_broken=' . ($c->isBroken === 1 ? 'true' : 'false'),
                 conditionLevel: $cLevel,
                 message: $c->message,
             );
