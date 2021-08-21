@@ -118,7 +118,9 @@ final class IsuCondition
         public ?string $jiaIsuUuid,
         public ?DateTimeInterface $timestamp,
         public ?bool $isSitting,
-        public ?string $condition,
+        public ?int $isDirty,
+        public ?int $isOverweight,
+        public ?int $isBroken,
         public ?string $message,
         public ?DateTimeInterface $createdAt,
     ) {
@@ -135,7 +137,9 @@ final class IsuCondition
             $dbRow['jia_isu_uuid'] ?? null,
             isset($dbRow['timestamp']) ? new DateTimeImmutable($dbRow['timestamp']) : null,
             isset($dbRow['is_sitting']) ? (bool)$dbRow['is_sitting'] : null,
-            $dbRow['condition'] ?? null,
+            (int)$dbRow['is_dirty'] ?? null,
+            (int)$dbRow['is_overweight'] ?? null,
+            (int)$dbRow['is_broken'] ?? null,
             $dbRow['message'] ?? null,
             isset($dbRow['created_at']) ? new DateTimeImmutable($dbRow['created_at']) : null,
         );
@@ -742,7 +746,7 @@ final class Handler
             if (count($rows) != 0) {
                 $lastCondition = IsuCondition::fromDbRow($rows[0]);
                 try {
-                    $conditionLevel = $this->calculateConditionLevel($lastCondition->condition);
+                    $conditionLevel = $this->calculateConditionLevel((int)$lastCondition->isDirty + (int)$lastCondition->isOverweight + (int)$lastCondition->isBroken);
                 } catch (UnexpectedValueException $e) {
                     $this->dbh->rollBack();
                     $this->logger->error($e->getMessage());
@@ -755,7 +759,7 @@ final class Handler
                     isuName: $isu->name,
                     timestamp: $lastCondition->timestamp->getTimestamp(),
                     isSitting: $lastCondition->isSitting,
-                    condition: $lastCondition->condition,
+                    condition: 'is_dirty=' . ($lastCondition->isDirty === 1 ? 'true' : 'false') . ',is_overweight=' . ($lastCondition->isOverweight === 1 ? 'true' : 'false') . ',is_broken=' . ($lastCondition->isBroken === 1 ? 'true' : 'false'),
                     conditionLevel: $conditionLevel,
                     message: $lastCondition->message,
                 );
@@ -1222,20 +1226,20 @@ final class Handler
         $rawScore = 0;
 
         foreach ($isuConditions as $condition) {
-            $badConditionsCount = 0;
+            $badConditionsCount = $condition->isDirty + $condition->isOverweight + $condition->isBroken;
 
-            if (!$this->isValidConditionFormat($condition->condition)) {
-                return [[], 'invalid condition format'];
+            //if (!$this->isValidConditionFormat($condition->condition)) {
+            //    return [[], 'invalid condition format'];
+            //}
+
+            if ($condition->isDirty) {
+                $conditionsCount['is_dirty'] += 1;
             }
-
-            foreach (explode(',', $condition->condition) as $condStr) {
-                $keyValue = explode('=', $condStr);
-
-                $conditionName = $keyValue[0];
-                if ($keyValue[1] == 'true') {
-                    $conditionsCount[$conditionName] += 1;
-                    $badConditionsCount++;
-                }
+            if ($condition->isBroken) {
+                $conditionsCount['is_broken'] += 1;
+            }
+            if ($condition->isOverweight) {
+                $conditionsCount['is_overweight'] += 1;
             }
 
             if ($badConditionsCount >= 3) {
@@ -1434,7 +1438,7 @@ final class Handler
         $conditionsResponse = [];
         foreach ($conditions as $c) {
             try {
-                $cLevel = $this->calculateConditionLevel($c->condition);
+                $cLevel = $this->calculateConditionLevel((int)$c->isDirty + (int)$c->isOverweight + (int)$c->isBroken);
             } catch (UnexpectedValueException) {
                 continue;
             }
@@ -1448,7 +1452,7 @@ final class Handler
                 isuName: $isuName,
                 timestamp: $c->timestamp->getTimestamp(),
                 isSitting: $c->isSitting,
-                condition: $c->condition,
+                condition: 'is_dirty=' . ($c->isDirty === 1 ? 'true' : 'false') . ',is_overweight=' . ($c->isOverweight === 1 ? 'true' : 'false') . ',is_broken=' . ($c->isBroken === 1 ? 'true' : 'false'),
                 conditionLevel: $cLevel,
                 message: $c->message,
             );
@@ -1467,19 +1471,13 @@ final class Handler
      *
      * @throws UnexpectedValueException
      */
-    private function calculateConditionLevel(string $condition): string
+    private function calculateConditionLevel(int $warnCount): string
     {
-        $warnCount = mb_substr_count($condition, '=true');
-
-        try {
-            return match ($warnCount) {
-                0 => self::CONDITION_LEVEL_INFO,
-                1, 2 => self::CONDITION_LEVEL_WARNING,
-                3 => self::CONDITION_LEVEL_CRITICAL,
-            };
-        } catch (UnhandledMatchError) {
-            throw new UnexpectedValueException('unexpected warn count');
-        }
+        return match ($warnCount) {
+            0 => self::CONDITION_LEVEL_INFO,
+            1, 2 => self::CONDITION_LEVEL_WARNING,
+            3 => self::CONDITION_LEVEL_CRITICAL,
+        };
     }
 
     /**
@@ -1549,7 +1547,7 @@ final class Handler
                 if (count($conditions) > 0) {
                     $isuLastCondition = $conditions[0];
                     try {
-                        $conditionLevel = $this->calculateConditionLevel($isuLastCondition->condition);
+                        $conditionLevel = $this->calculateConditionLevel((int)$isuLastCondition->isDirty + (int)$isuLastCondition->isOverweight + (int)$isuLastCondition->isBroken);
                     } catch (UnexpectedValueException $e) {
                         $this->logger->error($e->getMessage());
 
@@ -1599,14 +1597,16 @@ final class Handler
      */
     public function postIsuCondition(Request $request, Response $response, array $args): Response
     {
+	/*
         // TODO: 一定割合リクエストを落としてしのぐようにしたが、本来は全量さばけるようにすべき
-        $dropProbability = 0.9;
+        $dropProbability = 0.0;
 
         if ((rand() / getrandmax()) <= $dropProbability) {
             $this->logger->warning('drop post isu condition request');
 
             return $response->withStatus(StatusCodeInterface::STATUS_ACCEPTED);
         }
+	*/
 
         $jiaIsuUuid = $args['jia_isu_uuid'];
         if ($jiaIsuUuid === '') {
@@ -1633,6 +1633,15 @@ final class Handler
                 ->withHeader('Content-Type', 'text/plain; charset=UTF-8');
         }
 
+        foreach ($req as $cond) {
+            if (!$this->isValidConditionFormat($cond->condition)) {
+                $response->getBody()->write('bad request body');
+
+                return $response->withStatus(StatusCodeInterface::STATUS_BAD_REQUEST)
+                    ->withHeader('Content-Type', 'text/plain; charset=UTF-8');
+            }
+	}
+
         $this->dbh->beginTransaction();
 
         try {
@@ -1655,26 +1664,19 @@ final class Handler
         }
 
         foreach ($req as $cond) {
-            if (!$this->isValidConditionFormat($cond->condition)) {
-                $this->dbh->rollBack();
-                $response->getBody()->write('bad request body');
-
-                return $response->withStatus(StatusCodeInterface::STATUS_BAD_REQUEST)
-                    ->withHeader('Content-Type', 'text/plain; charset=UTF-8');
-            }
-
-
             try {
                 $stmt = $this->dbh->prepare(
                     'INSERT INTO `isu_condition`' .
-                    '	(`jia_isu_uuid`, `timestamp`, `is_sitting`, `condition`, `message`)' .
-                    '	VALUES (?, ?, ?, ?, ?)'
+                    '	(`jia_isu_uuid`, `timestamp`, `is_sitting`, `is_dirty`, `is_overweight`, `is_broken`, `message`)' .
+                    '	VALUES (?, ?, ?, ?, ?, ?, ?)'
                 );
                 $stmt->execute([
                     $jiaIsuUuid,
                     date('Y-m-d H:i:s', $cond->timestamp),
                     (int)$cond->isSitting,
-                    $cond->condition,
+                    strpos($cond->condition, 'is_dirty=true') === false ? 0 : 1,
+                    strpos($cond->condition, 'is_overweight=true') === false ? 0 : 1,
+                    strpos($cond->condition, 'is_broken=true') === false ? 0 : 1,
                     $cond->message,
                 ]);
             } catch (PDOException $e) {
@@ -1727,13 +1729,14 @@ final class Handler
         return $idxCondStr == mb_strlen($conditionStr);
     }
 
-//     public function getIndex(Request $request, Response $response): Response
-//     {
-//         $response->getBody()->write(file_get_contents(self::FRONTEND_CONTENTS_PATH . '/index.html'));
-//
-//         return $response;
-//     }
-//
+    public function getIndex(Request $request, Response $response): Response
+    {
+        $response->getBody()->write(file_get_contents(self::FRONTEND_CONTENTS_PATH . '/index.html'));
+
+        return $response;
+    }
+
+    
 //     public function getAssets(Request $request, Response $response, array $args): Response
 //     {
 //         $filePath = self::FRONTEND_CONTENTS_PATH . '/assets/' . $args['filename'];
