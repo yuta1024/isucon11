@@ -20,6 +20,16 @@
 # isucon11
 ISUCON11 qualifying repository of ワイハリマ 🌴 team
 
+### score
+```
+#36253	26656	FINISHED	2021-08-21 18:41:21.913	a minute - [latest] weight=5
+#35981	24481	FINISHED	2021-08-21 18:39:30.430	a minute - weight=5
+#35518	24231	FINISHED	2021-08-21 18:36:02.677	a minute - weight=6
+#35280	25453	FINISHED	2021-08-21 18:34:22.800	a minute - weight=4
+#35016	29189	FINISHED	2021-08-21 18:32:28.922	a minute - [best] weight=5
+```
+
+
 ### db
 ```sql
 MariaDB [(none)]> create user 'isucon'@'%' identified by 'isucon';
